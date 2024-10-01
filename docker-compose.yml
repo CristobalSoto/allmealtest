@@ -1,0 +1,42 @@
+services:
+  web:
+    build: .
+    command: python manage.py runserver 0.0.0.0:8000
+    volumes:
+      - .:/usr/src/app
+    ports:
+      - "8000:8000"
+    depends_on:
+      - db
+    environment:
+      - DATABASE_URL=postgres://postgres:postgres@db:5432/allmeal_db
+      - SLACK_BOT_TOKEN=xoxb-7792724324930-7792754543474-KCzzJmmwNONszvC3OYGaWquP
+      - SLACK_SIGNING_SECRET=eb26ae7106194f343fc7086ea63e02a5
+
+  db:
+    image: postgres:13
+    environment:
+      POSTGRES_DB: allmeal_db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    volumes:
+      - postgres_data:/var/lib/postgresql/data/
+
+  redis:
+    image: redis:6.0  # Add Redis service here
+    ports:
+      - "6379:6379"  # Redis default port
+
+  celery-beat:
+    image: celery
+    build:
+      context: .
+    command: celery -A allmeal_backend beat -l info
+    volumes:
+      - .:/usr/src/app
+    depends_on:
+      - web
+      - redis
+
+volumes:
+  postgres_data:
