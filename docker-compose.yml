@@ -8,11 +8,8 @@ services:
       - "8000:8000"
     depends_on:
       - db
-    environment:
-      - DATABASE_URL=postgres://postgres:postgres@db:5432/allmeal_db
-      - SLACK_BOT_TOKEN=xoxb-7792724324930-7792754543474-KCzzJmmwNONszvC3OYGaWquP
-      - SLACK_SIGNING_SECRET=eb26ae7106194f343fc7086ea63e02a5
-
+    env_file:
+      - .env 
   db:
     image: postgres:13
     environment:
